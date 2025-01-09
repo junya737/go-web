@@ -9,6 +9,17 @@ import (
 type PageData struct {
 	Title   string
 	Message string
+	Links   []Link
+}
+
+type Link struct {
+	Text string
+	URL  string
+}
+
+var Links = []Link{
+	{Text: "Home", URL: "/"},
+	{Text: "About", URL: "/about"},
 }
 
 // テンプレートを使ってHTMLを生成する関数
@@ -32,39 +43,26 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// r: リクエストを保持する構造体
 	// // レスポンスを書き込む
 	// fmt.Fprintln(w, "Hello, World!")
-
 	// テンプレートを使ってHTMLを生成
+
 	pageData := PageData{
 		Title:   "Hello, World!",
 		Message: "This is a message from the server.",
+		Links:   Links,
 	}
-	// テンプレートをパースしてレスポンスに書き込む
-	tmpl, err := template.ParseFiles("template.html")
+	renderTemplate(w, "template.html", pageData)
 
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = tmpl.Execute(w, pageData)
-
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
+
 	data := PageData{
 		Title:   "About",
 		Message: "This is the about page.",
+		Links:   Links,
 	}
 
-	tmpl, err := template.ParseFiles("template.html")
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		fmt.Println(err)
-	}
+	renderTemplate(w, "template.html", data)
 
 }
 
