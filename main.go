@@ -11,6 +11,21 @@ type PageData struct {
 	Message string
 }
 
+// テンプレートを使ってHTMLを生成する関数
+func renderTemplate(w http.ResponseWriter, tmpl string, data PageData) {
+	t, err := template.ParseFiles(tmpl)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	err = t.Execute(w, data)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 // ハンドラ関数を定義
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// w: レスポンスを管理する構造体
@@ -34,7 +49,6 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
