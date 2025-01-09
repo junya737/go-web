@@ -13,6 +13,13 @@
         <input type="text" id="name" name="name">
         <button type="submit">Submit</button>
     </form>
+    <h2>Submitted Names:</h2>
+    <ul>
+        {{range .Names}}
+        <li>{{.}}</li>
+        {{end}}
+    </ul>
+    <h2>Links:</h2>
     <nav>
         <ul>
             {{range .Links}}

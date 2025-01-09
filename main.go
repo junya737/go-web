@@ -10,6 +10,7 @@ type PageData struct {
 	Title   string
 	Message string
 	Links   []Link
+	Names   []string // 保存されたname
 }
 
 type Link struct {
@@ -21,6 +22,8 @@ var Links = []Link{
 	{Text: "Home", URL: "/"},
 	{Text: "About", URL: "/about"},
 }
+
+var savedNames []string // 保存されたname
 
 // テンプレートを使ってHTMLを生成する関数
 func renderTemplate(w http.ResponseWriter, tmpl string, data PageData) {
@@ -46,19 +49,18 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// テンプレートを使ってHTMLを生成
 
 	var name string
-	if r.Method == http.MethodPost {
+	if r.Method == "POST" {
 		name = r.FormValue("name")
-		if name == "" {
-			name = "World"
+		if name != "" {
+			savedNames = append(savedNames, name)
 		}
-	} else {
-		name = "World"
 	}
 
 	pageData := PageData{
 		Title:   "Home",
-		Message: "Hello, " + name + "!",
+		Message: "Hello " + name + "!",
 		Links:   Links,
+		Names:   savedNames,
 	}
 	renderTemplate(w, "template.html", pageData)
 
