@@ -37,9 +37,27 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func aboutHandler(w http.ResponseWriter, r *http.Request) {
+	data := PageData{
+		Title:   "About",
+		Message: "This is the about page.",
+	}
+
+	tmpl, err := template.ParseFiles("template.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
+
 func main() {
 	// "/" パスにリクエストが来たときにhelloHandlerを呼び出す
 	http.HandleFunc("/", helloHandler)
+	http.HandleFunc("/about", aboutHandler)
 
 	// サーバーを開始する
 	fmt.Println("Server is running at http://localhost:8080")
