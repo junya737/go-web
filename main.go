@@ -45,9 +45,19 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintln(w, "Hello, World!")
 	// テンプレートを使ってHTMLを生成
 
+	var name string
+	if r.Method == http.MethodPost {
+		name = r.FormValue("name")
+		if name == "" {
+			name = "World"
+		}
+	} else {
+		name = "World"
+	}
+
 	pageData := PageData{
-		Title:   "Hello, World!",
-		Message: "This is a message from the server.",
+		Title:   "Home",
+		Message: "Hello, " + name + "!",
 		Links:   Links,
 	}
 	renderTemplate(w, "template.html", pageData)
