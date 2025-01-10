@@ -1,9 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"text/template"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type PageData struct {
@@ -17,6 +22,8 @@ type Link struct {
 	Text string
 	URL  string
 }
+
+var db *sql.DB
 
 var Links = []Link{
 	{Text: "Home", URL: "/"},
@@ -78,7 +85,35 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func executeSQLFile(db *sql.DB, filePath string) error {
+	//// ファイルを読み込む
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read SQL file: %w", err)
+	}
+
+	// SQLファイルの内容を実行する
+	_, err = db.Exec(string(content))
+	if err != nil {
+		return fmt.Errorf("failed to execute SQL: %w", err)
+	}
+	return nil
+}
+
 func main() {
+	// データベースを開く
+	var err error
+	db, err = sql.Open("sqlite3", "./names.db")
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+
+	err = executeSQLFile(db, "./schema.sql")
+	if err != nil {
+		log.Fatal("Failed to execute schema:", err)
+	}
+
 	// "/" パスにリクエストが来たときにhelloHandlerを呼び出す
 	http.HandleFunc("/", helloHandler)
 	http.HandleFunc("/about", aboutHandler)
