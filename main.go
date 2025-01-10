@@ -114,7 +114,7 @@ func executeSQLFile(db *sql.DB, filePath string) error {
 func main() {
 	// データベースを開く
 	var err error
-	db, err = sql.Open("sqlite3", "./names.db")
+	db, err = sql.Open("sqlite3", "./data.db")
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
