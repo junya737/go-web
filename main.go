@@ -47,6 +47,27 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data PageData) {
 	}
 }
 
+func getNames() ([]string, error) {
+	rows, err := db.Query("SELECT name FROM names")
+	if err != nil {
+		return nil, err
+	}
+	// 関数終わりにrowsを閉じる
+	defer rows.Close()
+
+	var names []string
+	for rows.Next() {
+		var name string
+		// rowsをnameにコピー．参照渡しの必要あり．
+		err := rows.Scan(&name)
+		if err != nil {
+			return nil, err
+		}
+		names = append(names, name)
+	}
+	return names, nil
+}
+
 // データベースにnameを保存する関数
 func saveName(name string) error {
 	_, err := db.Exec("INSERT INTO names (name) VALUES (?)", name)
@@ -65,7 +86,6 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		name = r.FormValue("name")
 		if name != "" {
-			savedNames = append(savedNames, name)
 			err := saveName(name)
 			if err != nil {
 				http.Error(w, "Failed to save name", http.StatusInternalServerError)
@@ -74,11 +94,17 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	names, err := getNames()
+	if err != nil {
+		http.Error(w, "Failed to load names", http.StatusInternalServerError)
+		return
+	}
+
 	pageData := PageData{
 		Title:   "Home",
 		Message: "Hello " + name + "!",
 		Links:   Links,
-		Names:   savedNames,
+		Names:   names,
 	}
 	renderTemplate(w, "template.html", pageData)
 
