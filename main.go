@@ -47,6 +47,12 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data PageData) {
 	}
 }
 
+// データベースにnameを保存する関数
+func saveName(name string) error {
+	_, err := db.Exec("INSERT INTO names (name) VALUES (?)", name)
+	return err
+}
+
 // ハンドラ関数を定義
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// w: レスポンスを管理する構造体
@@ -60,6 +66,11 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		name = r.FormValue("name")
 		if name != "" {
 			savedNames = append(savedNames, name)
+			err := saveName(name)
+			if err != nil {
+				http.Error(w, "Failed to save name", http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 
